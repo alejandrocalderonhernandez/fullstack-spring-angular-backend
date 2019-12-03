@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import com.alejandro.example.model.entity.RegionEntity;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
@@ -17,7 +18,7 @@ public class ClientDTO  implements Serializable{
 	private String lastname;
 	private LocalDateTime createdAt;
 	private String photo;
-	@JsonManagedReference
+	@JsonBackReference
 	@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 	private RegionEntity region;
 	

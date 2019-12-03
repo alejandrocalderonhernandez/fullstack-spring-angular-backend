@@ -1,14 +1,23 @@
 package com.alejandro.example.util.mapper;
 
-import org.springframework.stereotype.Component;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import com.alejandro.example.model.dto.ClientDTO;
 import com.alejandro.example.model.dto.RegionDTO;
 import com.alejandro.example.model.entity.ClientEntity;
 import com.alejandro.example.model.entity.RegionEntity;
+import com.alejandro.example.model.entity.UserEntity;
 
-@Component
 public class Mapper {
+	
+	private Mapper() {
+	}
 	
 	public static ClientDTO mapClient(ClientEntity entity) {
 		return new ClientDTO(
@@ -40,6 +49,17 @@ public class Mapper {
 
 	public static RegionDTO mapRegion(RegionDTO dto) {
 		return new RegionDTO(dto.getIdRegion(), dto.getName(),  dto.getClients());
+	}
+	
+	public static UserDetails mapUserToUserDetail(UserEntity user) {
+		List<GrantedAuthority> authorities = user.getRoles().stream().map( role -> 
+			new SimpleGrantedAuthority(role.getName()
+		)).collect(Collectors.toList());
+		return new User(user.getUsername(), 
+											 user.getPassword(),
+											 user.getIsEnabled(),
+											 true, true, true,
+											 authorities);
 	}
 	
 }
