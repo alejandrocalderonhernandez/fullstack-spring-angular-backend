@@ -1,4 +1,8 @@
-package com.alejandro.example.config;
+package com.alejandro.example.config.auth;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -11,9 +15,12 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.A
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
+import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
+
+import com.alejandro.example.util.FileReaderUtil;
 
 @EnableAuthorizationServer
 @Configuration
@@ -27,6 +34,8 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 	private static final String[] SCOOPE  = {"read", "write"};
 	private static final String[] GRANT_TYPES = {"password", "refresh_token"};
 	private static final int TIME_VALID = 3600;
+	private static final Path PATH_RSA_PRIVATE = Paths.get("/home/alejandro/Projects/Spring/fullstack-spring-angular-example/src/main/resources/rsa-private.txt");
+	private static final Path PATH_RSA_PUBLIC = Paths.get("/home/alejandro/Projects/Spring/fullstack-spring-angular-example/src/main/resources/rsa-public.txt");
 	
 	@Autowired
 	private BCryptPasswordEncoder passwordEncoder;
@@ -34,6 +43,9 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 	@Autowired
 	@Qualifier("authenticationManager")
 	private AuthenticationManager authenticationManager;
+	
+	@Autowired
+	private TokenInfo tokenInfo;
 	
 	@Bean
 	public TokenStore tokenStore() {
@@ -67,10 +79,23 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 
 	@Override
 	public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
+		TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
+		tokenEnhancerChain.setTokenEnhancers(Arrays.asList(this.tokenInfo, accessTokenConverter() ));
 		endpoints
 			.authenticationManager(authenticationManager)
 			.tokenStore(tokenStore())
-			.accessTokenConverter(accessTokenConverter());
+			.accessTokenConverter(accessTokenConverter())
+			.tokenEnhancer(tokenEnhancerChain);
 	}	
+	
+	@Bean
+	public JwtAccessTokenConverter accessTokenConverter1() {
+		String privateRSA = FileReaderUtil.read(PATH_RSA_PRIVATE);
+		String publicRSA = FileReaderUtil.read(PATH_RSA_PUBLIC);
+		JwtAccessTokenConverter jwtAccessTokenConverter = new JwtAccessTokenConverter();
+		jwtAccessTokenConverter.setSigningKey(publicRSA);
+		jwtAccessTokenConverter.setVerifierKey(privateRSA);
+		return jwtAccessTokenConverter;
+	}
 	
 }

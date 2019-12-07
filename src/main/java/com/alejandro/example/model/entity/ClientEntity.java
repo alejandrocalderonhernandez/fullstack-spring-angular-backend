@@ -53,9 +53,8 @@ public class ClientEntity implements Serializable {
 	private RegionEntity region;
 	
 	public ClientEntity() {}
-	
-	public ClientEntity(Long id, @NotEmpty @Size(min = 4, max = 15) String name,
-			@NotEmpty @Email @Size(min = 10, max = 30) String email, @NotEmpty @Size(min = 4, max = 15) String lastname,
+
+	public ClientEntity(Long id,  String name,  String email,  String lastname,
 			LocalDateTime createdAt, String photo, RegionEntity region) {
 		super();
 		this.id = id;
@@ -66,38 +65,43 @@ public class ClientEntity implements Serializable {
 		this.photo = photo;
 		this.region = region;
 	}
-	
-	public Long getIdClient() {
+
+	public Long getId() {
 		return id;
 	}
-	public void setIdClient(Long id) {
+
+	public void setId(Long id) {
 		this.id = id;
 	}
-	
+
 	public String getName() {
 		return name;
 	}
+
 	public void setName(String name) {
 		this.name = name;
 	}
-	
-	public String getLastname() {
-		return lastname;
-	}
-	public void setLastname(String lastname) {
-		this.lastname = lastname;
-	}
-	
+
 	public String getEmail() {
 		return email;
 	}
+
 	public void setEmail(String email) {
 		this.email = email;
 	}
-	
+
+	public String getLastname() {
+		return lastname;
+	}
+
+	public void setLastname(String lastname) {
+		this.lastname = lastname;
+	}
+
 	public LocalDateTime getCreatedAt() {
 		return createdAt;
 	}
+
 	public void setCreatedAt(LocalDateTime createdAt) {
 		this.createdAt = createdAt;
 	}
@@ -105,6 +109,7 @@ public class ClientEntity implements Serializable {
 	public String getPhoto() {
 		return photo;
 	}
+
 	public void setPhoto(String photo) {
 		this.photo = photo;
 	}
@@ -112,10 +117,11 @@ public class ClientEntity implements Serializable {
 	public RegionEntity getRegion() {
 		return region;
 	}
+
 	public void setRegion(RegionEntity region) {
 		this.region = region;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -129,14 +135,14 @@ public class ClientEntity implements Serializable {
 		result = prime * result + ((region == null) ? 0 : region.hashCode());
 		return result;
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
 		if (obj == null)
 			return false;
-		if (getClass() != obj.getClass())
+		if (!(obj instanceof ClientEntity))
 			return false;
 		ClientEntity other = (ClientEntity) obj;
 		if (createdAt == null) {
@@ -176,7 +182,7 @@ public class ClientEntity implements Serializable {
 			return false;
 		return true;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "ClientEntity [id=" + id + ", name=" + name + ", email=" + email + ", lastname=" + lastname

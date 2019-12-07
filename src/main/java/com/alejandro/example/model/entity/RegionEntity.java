@@ -83,7 +83,7 @@ public class RegionEntity implements Serializable{
 			return true;
 		if (obj == null)
 			return false;
-		if (getClass() != obj.getClass())
+		if (!(obj instanceof RegionEntity))
 			return false;
 		RegionEntity other = (RegionEntity) obj;
 		if (clients == null) {

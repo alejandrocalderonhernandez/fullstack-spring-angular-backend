@@ -24,6 +24,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -33,7 +34,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -48,16 +48,7 @@ import com.alejandro.example.util.StringUtil;
 import com.alejandro.example.util.helper.FileHelper;
 import com.alejandro.example.util.mapper.Mapper;
 
-
-@CrossOrigin(origins = "*", maxAge = 3600,
-	methods = {
-			RequestMethod.GET,
-			RequestMethod.POST,
-			RequestMethod.PUT,
-			RequestMethod.PATCH,
-			RequestMethod.DELETE,
-			RequestMethod.OPTIONS,
-			RequestMethod.HEAD})
+@CrossOrigin()
 @RestController()
 @RequestMapping("clients")
 public class ClientRestController {
@@ -122,8 +113,9 @@ public class ClientRestController {
 		return new ResponseEntity<ClientDTO>(responce, HttpStatus.OK);
 	}
 	
+	@Secured({"ROLE_ADMIN","ROLE_USER"})
 	@PostMapping(path = "/client", consumes={"application/json"}) 
-	public ResponseEntity<?> create( @Valid @RequestBody ClientEntity client, BindingResult bindingResult) {
+	public ResponseEntity<?> create( @Valid @RequestBody ClientDTO client, BindingResult bindingResult) {
 		if(bindingResult.hasErrors()) {
 			List<String> errors = new ArrayList<>();
 			
@@ -139,19 +131,21 @@ public class ClientRestController {
 		}
 		try {
 			client.setCreatedAt(LocalDateTime.now());
-			service.save(client);
-			LOG.info("New client with id: " + client.getIdClient());
-			return new ResponseEntity<Map<String, ClientEntity>>(genericMesages.getMesssageCreatedSuccess(client)
+			ClientEntity clientEntity = Mapper.mapClient(client);
+			service.save(clientEntity);
+			LOG.info("New client with id: " + client.getId());
+			return new ResponseEntity<Map<String, ClientEntity>>(genericMesages.getMesssageCreatedSuccess(clientEntity)
 					, HttpStatus.CREATED);
 		} catch (DataAccessException e) {
-			LOG.error("Fail creating client with id: " + client.getIdClient());
+			LOG.error("Fail creating client with id: " + client.getId());
 			return new ResponseEntity<Map<String, Object>>(staticMessages.getMesssageForSQLException(e.getMessage())
 					, HttpStatus.INTERNAL_SERVER_ERROR); 
 	   }
 	}
 	
+	@Secured({"ROLE_ADMIN","ROLE_USER"})
 	@PutMapping(path = "client/{id}", produces = MediaType.APPLICATION_JSON_VALUE, consumes={"application/json"})
-	public ResponseEntity<?> update( @Valid  @RequestBody ClientEntity client, 
+	public ResponseEntity<?> update( @Valid  @RequestBody ClientDTO client, 
 			BindingResult bindingResult,  @PathVariable Long id){
 		
 		if(bindingResult.hasErrors()) {
@@ -168,8 +162,8 @@ public class ClientRestController {
 			clientToUpdate.setName(client.getName());
 			clientToUpdate.setRegion(client.getRegion());
 			service.save(clientToUpdate);
-			LOG.info("Client edited woth id: " + clientToUpdate.getIdClient());
-			return new ResponseEntity<Map<String, ClientEntity>>(genericMesages.getMesssageUpdatedSuccess(client)
+			LOG.info("Client edited woth id: " + clientToUpdate.getId());
+			return new ResponseEntity<Map<String, ClientEntity>>(genericMesages.getMesssageUpdatedSuccess(clientToUpdate)
 					, HttpStatus.OK);
 		}
 		
@@ -177,6 +171,7 @@ public class ClientRestController {
 				, HttpStatus.BAD_REQUEST);
 	}
 	
+	@Secured("ROLE_ADMIN")
 	@DeleteMapping(path = "client/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseStatus(code = HttpStatus.NO_CONTENT)
 	public ResponseEntity<?>   delete(@PathVariable Long id) { 
@@ -196,6 +191,7 @@ public class ClientRestController {
 		}
 	}
 	
+	@Secured({"ROLE_ADMIN","ROLE_USER"})
 	@PostMapping(path = "clients/upload")
 	public ResponseEntity<?> uploadImg(@RequestParam("img") MultipartFile img, @RequestParam("id") Long id) {
 		ClientEntity client = service.findById(id);
@@ -218,6 +214,7 @@ public class ClientRestController {
 				, HttpStatus.INTERNAL_SERVER_ERROR);	
 	}
 	
+	@Secured({"ROLE_ADMIN","ROLE_USER"})
 	@GetMapping(path = "/clients/img/{name:.+}")
 	public ResponseEntity<?> viewPhoto(@PathVariable String name) {
 		Path path = Paths.get(PATH_IMG).resolve(name).toAbsolutePath();

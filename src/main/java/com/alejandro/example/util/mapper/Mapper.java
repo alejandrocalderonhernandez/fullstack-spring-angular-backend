@@ -21,7 +21,7 @@ public class Mapper {
 	
 	public static ClientDTO mapClient(ClientEntity entity) {
 		return new ClientDTO(
-				entity.getIdClient(),
+				entity.getId(),
 				entity.getName(),
 				entity.getEmail(), 
 				entity.getLastname(), 

@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.Set;
 
 import com.alejandro.example.model.entity.ClientEntity;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 public class RegionDTO implements Serializable{
