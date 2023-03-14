@@ -19,12 +19,12 @@ public class UserService implements UserDetailsService {
 	private static final Logger LOG = LogManager.getLogger(UserService.class); 
 
 	@Autowired
-	private UserRepository repocitory;
+	private UserRepository repository;
 	
 	@Override
 	@Transactional(readOnly = true)
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		UserEntity user = repocitory.findByUsername(username);
+		UserEntity user = repository.findByUsername(username);
 		if(user == null ) {
 			LOG.error("Error: user " + username + " not exist");
 			throw new UsernameNotFoundException("Error: user " + username + " not exist");
